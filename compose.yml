@@ -23,6 +23,20 @@ services:
     volumes:
       - movie-api-storage:/var/lib/minio/data
 
+  movie-api-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "9088:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://movie-api-db:5432/movie_api_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+    depends_on:
+      - movie-api-db
+
 volumes:
   movie-api-storage:
   movie-api-db-data:
