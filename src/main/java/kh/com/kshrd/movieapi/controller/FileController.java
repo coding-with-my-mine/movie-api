@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import kh.com.kshrd.movieapi.dto.response.APIResponse;
 import kh.com.kshrd.movieapi.model.FileMetadata;
 import kh.com.kshrd.movieapi.service.FileService;
+import kh.com.kshrd.movieapi.util.MediaTypeUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,8 +43,9 @@ public class FileController {
     public ResponseEntity<?> getFileByFileName(@PathVariable("file-name") String fileName) throws IOException {
         InputStream inputStream = fileService.getFileByFileName(fileName);
         byte[] fileContent = inputStream.readAllBytes();
+        MediaType mediaType = MediaTypeUtil.getMediaType(fileName);
         return ResponseEntity.status(HttpStatus.OK)
-                .contentType(MediaType.IMAGE_PNG)
+                .contentType(mediaType)
                 .body(fileContent);
     }
 
