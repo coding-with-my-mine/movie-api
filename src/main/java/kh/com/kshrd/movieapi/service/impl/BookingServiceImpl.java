@@ -50,6 +50,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public void delete(Long bookingId) {
+        getById(bookingId);
         bookingRepository.delete(bookingId);
     }
 
