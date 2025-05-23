@@ -50,10 +50,10 @@ public interface BookingRepository {
 
     @Update("""
                 UPDATE bookings
-                SET full_name = #{fullName},
-                    email = #{email},
-                    total_price = #{totalPrice},
-                    show_id = #{showId}
+                SET full_name = #{request.fullName},
+                    email = #{request.email},
+                    total_price = #{request.totalPrice},
+                    show_id = #{request.showId}
                 WHERE booking_id = #{bookingId}
             """)
     void updateBooking(Long bookingId, @Param("request") BookingRequest request);
