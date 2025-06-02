@@ -71,4 +71,5 @@ public class GlobalException {
         problemDetail.setProperties(Map.of("timestamp", LocalDateTime.now(), "errors", errors));
         return problemDetail;
     }
+
 }
