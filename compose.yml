@@ -3,13 +3,13 @@ services:
     image: postgres:latest
     restart: always
     environment:
-      POSTGRES_DB: movie_api_db
+      POSTGRES_DB: movie_api_db_v2
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     volumes:
       - movie-api-db-data:/var/lib/postgresql/data
     ports:
-      - "5435:5432"
+      - "5436:5432"
 
   movie-api-minio:
     image: minio/minio:latest
@@ -29,9 +29,9 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - "9082:8080"
+      - "9083:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://movie-api-db:5432/movie_api_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://movie-api-db:5432/movie_api_db_v2
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
     depends_on:

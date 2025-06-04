@@ -13,10 +13,10 @@ public interface MovieRepository {
     @Select("""
                 INSERT INTO movies (
                     title, year, duration, rating, overview,
-                    director_name, is_favorite, poster, thriller, category_id
+                    director_name, poster, thriller, category_id
                 ) VALUES (
                     #{title}, #{year}, #{duration}, #{rating}, #{overview},
-                    #{directorName}, DEFAULT, #{poster}, #{thriller}, #{categoryId}
+                    #{directorName}, #{poster}, #{thriller}, #{categoryId}
                 )
                 RETURNING movie_id
             """)
@@ -25,22 +25,32 @@ public interface MovieRepository {
     @Results(id = "movieResult", value = {
             @Result(property = "movieId", column = "movie_id"),
             @Result(property = "directorName", column = "director_name"),
-            @Result(property = "isFavorite", column = "is_favorite"),
+            @Result(property = "isFavorite", column = "is_favorite_for_user"),
             @Result(property = "category", column = "category_id", one = @One(select = "kh.com.kshrd.movieapi.repository.CategoryRepository.getById")),
             @Result(property = "castMembers", column = "movie_id", many = @Many(select = "kh.com.kshrd.movieapi.repository.CastMemberRepository.getByMovieId")),
     })
     @Select("""
-                SELECT * FROM movies
+                SELECT
+                    m.*,
+                    CASE WHEN ufm.user_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_favorite_for_user
+                FROM movies m
+                LEFT JOIN user_favorite_movies ufm
+                    ON m.movie_id = ufm.movie_id AND ufm.user_id = #{userId}
                 OFFSET #{page} LIMIT #{size}
             """)
-    List<Movie> getAll(@Param("page") Integer page, @Param("size") Integer size);
+    List<Movie> getAll(Integer page, Integer size, Long userId);
 
     @ResultMap("movieResult")
     @Select("""
-                SELECT * FROM movies
-                WHERE movie_id = #{movieId}
+                SELECT
+                    m.*,
+                    CASE WHEN ufm.user_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_favorite_for_user
+                FROM movies m
+                LEFT JOIN user_favorite_movies ufm
+                    ON m.movie_id = ufm.movie_id AND ufm.user_id = #{userId}
+                WHERE m.movie_id = #{movieId}
             """)
-    Movie getById(Long movieId);
+    Movie getById(Long movieId, Long userId);
 
     @Update("""
                 UPDATE movies SET
@@ -62,14 +72,11 @@ public interface MovieRepository {
             """)
     void delete(Long movieId);
 
-    @ResultMap("movieResult")
-    @Select("""
-                UPDATE movies
-                SET is_favorite = #{status}
-                WHERE movie_id = #{movieId}
-                RETURNING *
+    @Insert("""
+                INSERT INTO user_favorite_movies
+                VALUES (#{userId}, #{movieId})
             """)
-    Movie updateFavoriteStatus(Long movieId, Boolean status);
+    void markToFavorite(Long movieId, Long userId);
 
     @ResultMap("movieResult")
     @Select("""
@@ -96,14 +103,20 @@ public interface MovieRepository {
     Movie getByTitle(String title);
 
     @Insert("""
-            INSERT INTO casting(movie_id, cast_id)
-            VALUES (#{movieId}, #{castMemberId})
-    """)
+                    INSERT INTO casting(movie_id, cast_id)
+                    VALUES (#{movieId}, #{castMemberId})
+            """)
     void insertMovieCastMember(Long movieId, Long castMemberId);
 
     @Delete("""
-        DELETE FROM casting
-        WHERE movie_id = #{movie};
-    """)
+                DELETE FROM casting
+                WHERE movie_id = #{movie};
+            """)
     void deleteMovieCastMember(Long movieId);
+
+    @Delete("""
+        DELETE FROM user_favorite_movies
+        WHERE user_id = #{userId} AND movie_id = #{movieId}
+    """)
+    void unmarkToFavorite(Long movieId, Long userId);
 }

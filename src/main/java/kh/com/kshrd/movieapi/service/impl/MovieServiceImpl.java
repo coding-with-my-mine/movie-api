@@ -4,6 +4,7 @@ import kh.com.kshrd.movieapi.dto.request.MovieRequest;
 import kh.com.kshrd.movieapi.exception.NotFoundException;
 import kh.com.kshrd.movieapi.model.Movie;
 import kh.com.kshrd.movieapi.repository.MovieRepository;
+import kh.com.kshrd.movieapi.service.AuthService;
 import kh.com.kshrd.movieapi.service.CastMemberService;
 import kh.com.kshrd.movieapi.service.CategoryService;
 import kh.com.kshrd.movieapi.service.MovieService;
@@ -21,6 +22,7 @@ public class MovieServiceImpl implements MovieService {
     private final MovieRepository movieRepository;
     private final CategoryService categoryService;
     private final CastMemberService castMemberService;
+    private final AuthService authService;
 
     @Override
     public Movie create(MovieRequest request) {
@@ -31,18 +33,21 @@ public class MovieServiceImpl implements MovieService {
             castMemberService.getById(castMemberId);
             movieRepository.insertMovieCastMember(movieId, castMemberId);
         });
-        return movieRepository.getById(movieId);
+        Long userId = authService.getCurrentUserId();
+        return movieRepository.getById(movieId, userId);
     }
 
     @Override
     public List<Movie> getAll(Integer page, Integer size) {
+        Long userId = authService.getCurrentUserId();
         page = (page - 1) * size;
-        return movieRepository.getAll(page, size);
+        return movieRepository.getAll(page, size, userId);
     }
 
     @Override
     public Movie getById(Long movieId) {
-        Movie movie = movieRepository.getById(movieId);
+        Long userId = authService.getCurrentUserId();
+        Movie movie = movieRepository.getById(movieId, userId);
         if (movie == null) {
             throw new NotFoundException("Movie not found");
         }
@@ -60,7 +65,8 @@ public class MovieServiceImpl implements MovieService {
             castMemberService.getById(castMemberId);
             movieRepository.insertMovieCastMember(movieId, castMemberId);
         });
-        return movieRepository.getById(movieId);
+        Long userId = authService.getCurrentUserId();
+        return movieRepository.getById(movieId, userId);
     }
 
     @Override
@@ -70,9 +76,11 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public Movie updateFavoriteStatus(Long movieId, Boolean status) {
+    public Movie markToFavorite(Long movieId) {
         getById(movieId);
-        return movieRepository.updateFavoriteStatus(movieId, status);
+        Long userId = authService.getCurrentUserId();
+        movieRepository.markToFavorite(movieId, userId);
+        return getById(movieId);
     }
 
     @Override
@@ -94,5 +102,13 @@ public class MovieServiceImpl implements MovieService {
         if (movie != null) {
             throw new NotFoundException("Movie already exists");
         }
+    }
+
+    @Override
+    public Movie unmarkToFavorite(Long movieId) {
+        getById(movieId);
+        Long userId = authService.getCurrentUserId();
+        movieRepository.unmarkToFavorite(movieId, userId);
+        return getById(movieId);
     }
 }

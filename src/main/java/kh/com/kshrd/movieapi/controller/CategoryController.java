@@ -1,6 +1,7 @@
 package kh.com.kshrd.movieapi.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -11,6 +12,7 @@ import kh.com.kshrd.movieapi.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -20,12 +22,14 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/categories")
 @Tag(name = "Categories", description = "Endpoints for managing categories")
+@SecurityRequirement(name = "bearerAuth")
 public class CategoryController {
 
     private final CategoryService categoryService;
 
     @PostMapping
     @Operation(summary = "Create a new category")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<APIResponse<Category>> create(@RequestBody @Valid CategoryRequest request) {
         Category created = categoryService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -70,6 +74,7 @@ public class CategoryController {
 
     @PutMapping("/{category-id}")
     @Operation(summary = "Update a category by ID")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<APIResponse<Category>> update(
             @PathVariable("category-id") Long categoryId,
             @RequestBody @Valid CategoryRequest request) {
@@ -86,6 +91,7 @@ public class CategoryController {
 
     @DeleteMapping("/{category-id}")
     @Operation(summary = "Delete a category by ID")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<APIResponse<Void>> delete(@PathVariable("category-id") Long categoryId) {
         categoryService.delete(categoryId);
         return ResponseEntity.status(HttpStatus.OK).body(

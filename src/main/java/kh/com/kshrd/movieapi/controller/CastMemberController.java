@@ -1,6 +1,7 @@
 package kh.com.kshrd.movieapi.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -11,6 +12,7 @@ import kh.com.kshrd.movieapi.service.CastMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -20,12 +22,14 @@ import java.util.List;
 @RequestMapping("/api/v1/cast-members")
 @RequiredArgsConstructor
 @Tag(name = "Cast Members", description = "Manage cast members related to movies")
+@SecurityRequirement(name = "bearerAuth")
 public class CastMemberController {
 
     private final CastMemberService castService;
 
     @PostMapping
     @Operation(summary = "Create a cast member")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<APIResponse<CastMember>> create(@RequestBody @Valid CastMemberRequest request) {
         CastMember created = castService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -85,6 +89,7 @@ public class CastMemberController {
 
     @PutMapping("/{cast-member-id}")
     @Operation(summary = "Update a cast member by ID")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<APIResponse<CastMember>> update(@PathVariable("cast-member-id") Long castMemberId,
                                                           @RequestBody @Valid CastMemberRequest request) {
         CastMember updated = castService.update(castMemberId, request);
@@ -100,6 +105,7 @@ public class CastMemberController {
 
     @DeleteMapping("/{cast-member-id}")
     @Operation(summary = "Delete a cast member by ID")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<APIResponse<Void>> delete(@PathVariable("cast-member-id") Long castMemberId) {
         castService.delete(castMemberId);
         return ResponseEntity.ok(

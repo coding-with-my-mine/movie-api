@@ -1,6 +1,7 @@
 package kh.com.kshrd.movieapi.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -20,6 +21,7 @@ import java.util.List;
 @RequestMapping("/api/v1/bookings")
 @RequiredArgsConstructor
 @Tag(name = "Bookings", description = "Manage bookings and reserved seats")
+@SecurityRequirement(name = "bearerAuth")
 public class BookingController {
 
     private final BookingService bookingService;

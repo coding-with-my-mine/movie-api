@@ -1,6 +1,7 @@
 package kh.com.kshrd.movieapi.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -11,6 +12,7 @@ import kh.com.kshrd.movieapi.service.MovieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -20,12 +22,14 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/movies")
 @Tag(name = "Movies", description = "Endpoints for managing movies")
+@SecurityRequirement(name = "bearerAuth")
 public class MovieController {
 
     private final MovieService movieService;
 
     @Operation(summary = "Create a new movie")
     @PostMapping
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<APIResponse<Movie>> create(@RequestBody @Valid MovieRequest request) {
         Movie movie = movieService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -70,6 +74,7 @@ public class MovieController {
 
     @Operation(summary = "Update a movie by ID")
     @PutMapping("/{movie-id}")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<APIResponse<Movie>> update(
             @PathVariable("movie-id") Long movieId,
             @RequestBody @Valid MovieRequest request) {
@@ -86,6 +91,7 @@ public class MovieController {
 
     @Operation(summary = "Delete a movie by ID")
     @DeleteMapping("/{movie-id}")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<APIResponse<Void>> delete(@PathVariable("movie-id") Long movieId) {
         movieService.delete(movieId);
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -97,15 +103,28 @@ public class MovieController {
         );
     }
 
-    @Operation(summary = "Mark or unmark a movie as favorite")
-    @PatchMapping("/{movie-id}/favorite")
-    public ResponseEntity<APIResponse<Movie>> updateFavoriteStatus(
-            @PathVariable("movie-id") Long movieId,
-            @RequestParam(defaultValue = "false") Boolean status) {
-        Movie updated = movieService.updateFavoriteStatus(movieId, status);
+    @Operation(summary = "Mark a movie as favorite")
+    @PostMapping("/{movie-id}/favorite")
+    public ResponseEntity<APIResponse<Movie>> markToFavorite(
+            @PathVariable("movie-id") Long movieId) {
+        Movie updated = movieService.markToFavorite(movieId);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(APIResponse.<Movie>builder()
+                        .message("Favorite marked successfully")
+                        .payload(updated)
+                        .status(HttpStatus.CREATED)
+                        .timestamp(Instant.now())
+                        .build());
+    }
+
+    @Operation(summary = "Unmark a movie as favorite")
+    @DeleteMapping("/{movie-id}/favorite")
+    public ResponseEntity<APIResponse<Movie>> unmarkToFavorite(
+            @PathVariable("movie-id") Long movieId) {
+        Movie updated = movieService.unmarkToFavorite(movieId);
         return ResponseEntity.ok(
                 APIResponse.<Movie>builder()
-                        .message("Favorite status updated successfully")
+                        .message("Favorite unmarked successfully")
                         .payload(updated)
                         .status(HttpStatus.OK)
                         .timestamp(Instant.now())

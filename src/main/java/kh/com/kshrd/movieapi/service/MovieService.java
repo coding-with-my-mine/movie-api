@@ -17,11 +17,13 @@ public interface MovieService {
 
     void delete(Long movieId);
 
-    Movie updateFavoriteStatus(Long movieId, Boolean status);
+    Movie markToFavorite(Long movieId);
 
     List<Movie> getAllByCategoryId(Long categoryId, Integer page, Integer size);
 
     List<Movie> getAllByCategoryName(String categoryName, Integer page, Integer size);
 
     void getByTitle(String title);
+
+    Movie unmarkToFavorite(Long movieId);
 }

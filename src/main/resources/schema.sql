@@ -1,3 +1,13 @@
+CREATE TABLE users
+(
+    user_id         SERIAL PRIMARY KEY,
+    full_name       VARCHAR(50)           NOT NULL,
+    password        VARCHAR(100)          NOT NULL,
+    email           VARCHAR(100)          NOT NULL UNIQUE,
+    profile_picture VARCHAR(255),
+    is_admin        BOOLEAN DEFAULT FALSE NOT NULL
+);
+
 CREATE TABLE categories
 (
     category_id SERIAL PRIMARY KEY,
@@ -13,7 +23,6 @@ CREATE TABLE movies
     rating        DECIMAL NOT NULL,
     overview      TEXT    NOT NULL,
     director_name TEXT    NOT NULL,
-    is_favorite   BOOLEAN DEFAULT FALSE,
     poster        TEXT    NOT NULL,
     thriller      TEXT    NOT NULL,
     category_id   INT     NOT NULL,
@@ -29,8 +38,8 @@ CREATE TABLE cast_members
 CREATE TABLE Casting
 (
     casting_id SERIAL PRIMARY KEY,
-    movie_id INT NOT NULL,
-    cast_id  INT NOT NULL,
+    movie_id   INT NOT NULL,
+    cast_id    INT NOT NULL,
     CONSTRAINT movie_fk FOREIGN KEY (movie_id) REFERENCES movies (movie_id) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT cast_members_fk FOREIGN KEY (cast_id) REFERENCES cast_members (cast_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -55,11 +64,11 @@ CREATE TABLE shows
 CREATE TABLE bookings
 (
     booking_id  SERIAL PRIMARY KEY,
-    full_name   TEXT           NOT NULL,
-    email       TEXT           NOT NULL,
     total_price NUMERIC(10, 2) NOT NULL,
     show_id     INT            NOT NULL,
-    CONSTRAINT show_fk FOREIGN KEY (show_id) REFERENCES shows (show_id) ON DELETE CASCADE ON UPDATE CASCADE
+    user_id     INT            NOT NULL,
+    CONSTRAINT show_fk FOREIGN KEY (show_id) REFERENCES shows (show_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT user_fk FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 CREATE TABLE booking_seat
@@ -69,5 +78,13 @@ CREATE TABLE booking_seat
     seat_id         INT NOT NULL,
     CONSTRAINT bookings_fk FOREIGN KEY (booking_id) REFERENCES bookings (booking_id) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT seat_fk FOREIGN KEY (seat_id) REFERENCES seats (seat_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
 
+CREATE TABLE user_favorite_movies
+(
+    user_id  INT NOT NULL,
+    movie_id INT NOT NULL,
+    PRIMARY KEY (user_id, movie_id),
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_movie FOREIGN KEY (movie_id) REFERENCES movies (movie_id) ON DELETE CASCADE ON UPDATE CASCADE
 );

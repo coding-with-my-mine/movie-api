@@ -13,15 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 public class BookingRequest {
 
-    @NotBlank
-    @NotNull
-    private String fullName;
-
-    @Email
-    @NotBlank
-    @NotNull
-    private String email;
-
     @NotNull
     @DecimalMin(value = "0.0", inclusive = false)
     private BigDecimal totalPrice;
