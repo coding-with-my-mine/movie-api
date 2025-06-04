@@ -38,5 +38,5 @@ services:
       - movie-api-db
 
 volumes:
-  movie-api-storage:
+#  movie-api-storage:
   movie-api-db-data:
