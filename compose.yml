@@ -9,7 +9,7 @@ services:
     volumes:
       - movie-api-db-data:/var/lib/postgresql/data
     ports:
-      - "5435:5432"
+      - "5450:5432"
 
   movie-api-minio:
     image: minio/minio:latest
@@ -18,8 +18,8 @@ services:
       - MINIO_ROOT_USER=admin
       - MINIO_ROOT_PASSWORD=password
     ports:
-      - "9008:9000"
-      - "9009:9001"
+      - "9020:9000"
+      - "9021:9001"
     volumes:
       - movie-api-storage:/var/lib/minio/data
 
